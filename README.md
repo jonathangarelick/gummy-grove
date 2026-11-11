@@ -8,6 +8,8 @@ Gummy Grove is a first-person shooter set in a gummy-bear favela. The Gummy Arme
 
 It is a native macOS game written in Rust on a custom Metal renderer, with ray-traced shadows from Metal Performance Shaders. There are no asset files: every mesh, texture, sound and note of music is generated in code when the game starts, which takes about a second.
 
+The setting is a homage to the Favela map from Call of Duty: Modern Warfare 2, rebuilt with candy in place of everything else. It is meant as affectionate parody and is not intended to offend anyone.
+
 ## Play
 
 You need a Mac with Apple silicon and a [Rust toolchain](https://rustup.rs).
@@ -127,6 +129,7 @@ Renders one frame to a PNG. Useful flags:
 ## Notes
 
 - Apple silicon Macs only. It has been run on one machine, an M1 Pro on macOS 27.
+- This is a fan project. It is not affiliated with or endorsed by Activision or the Call of Duty series, and uses none of their assets.
 - Interface text uses fonts that ship with macOS (Arial Rounded, Impact, Marker Felt).
 - Dependencies are locked to versions at least seven days old at the time of locking; build with `--locked`.
 
