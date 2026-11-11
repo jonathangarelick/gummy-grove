@@ -333,6 +333,31 @@ fn headless(args: &[String]) {
         if !has("--intro") { c.game.skip_intro(); }
     }
     let (t, frames) = (num("--t", 0.0), num("--frames", 40.0) as u32);
+    if let Some(want) = arg("--freeze-when").and_then(|v| v.parse::<usize>().ok()) {
+        // play with the bot until at least `want` bears are in clear view, then stop time and take the picture
+        let (mut n, start) = (0u32, (t * 60.0) as u32);
+        loop {
+            bot(&mut c.game, &mut c.inp, n, god);
+            if n >= start { c.inp.lmb = false; c.inp.pressed.clear(); } // hold fire and let them come
+            c.step(1.0 / 60.0);
+            let (view, eye) = (c.game.view(), c.game.cam_pos);
+            let seen = c.game.bears.iter().filter(|b| {
+                let p = b.zone(0.0, 0.9, 0.0);
+                let v = view.transform_point3(p);
+                b.spawn >= 1.0 && b.flash <= 0.0 && -v.z > 3.5 && -v.z < 22.0 && (v.x / v.z).abs() < 0.8 && (v.y / v.z).abs() < 0.38 && c.game.world.seg_blocked(eye, p) < 0.0
+            }).count();
+            n += 1;
+            if (n >= start && seen >= want) || n >= start + 60 * 60 || c.game.state != State::Playing { println!("froze at {:.1}s with {seen} bears in view", n as f32 / 60.0); break; }
+            c.inp.end_frame();
+        }
+        c.game.hurt_flash = 0.0; c.game.trauma = 0.0;
+        for _ in 0..frames { c.inp.down.clear(); c.inp.lmb = false; c.step(0.0); autoreleasepool(|| c.draw(None)); }
+        let (pw, ph, px) = c.r.read_pixels();
+        let out = arg("--shot").unwrap_or("shot.png".into());
+        save_png(&out, pw, ph, &px);
+        println!("wrote {out}");
+        return;
+    }
     if has("--lineup") { c.game.debug_lineup(Vec3::new(num("--lx", 0.0), num("--ly", 0.0), num("--lz", 72.0))); }
     if let Some(which) = arg("--inspect") { // weapon models on a table, for looking at from outside
         let at = glam::Mat4::from_translation(Vec3::new(num("--ix", 0.0), num("--iy", 1.5), num("--iz", 70.0))) * glam::Mat4::from_rotation_y(num("--iyaw", 1.5708));
