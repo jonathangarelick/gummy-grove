@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Gummy Grove</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="style.css">
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="loading">Loading the grove…</div>
+
+<div id="hud" hidden>
+  <div id="bars"><i></i><i></i></div>
+  <div id="rushfx"></div>
+
+  <div id="topc">
+    <div id="obj"></div>
+    <div id="boss" hidden><span>King Gummy</span><div class="track"><i id="bossfill"></i></div></div>
+  </div>
+  <div id="topr">
+    <div id="score">0</div>
+    <div class="meta"><span id="lvl">LV 1</span><span class="xp"><i id="xpfill"></i></span><em class="cz" id="candy">0</em></div>
+    <div id="combo"><b id="combox">x2</b><span class="track"><i id="combofill"></i></span></div>
+    <div id="feed"></div>
+  </div>
+
+  <div id="cross"><i></i><i></i><i></i><i></i><b></b></div>
+  <div id="hit"></div>
+  <div id="dmgdir"></div>
+  <div id="announce"></div>
+  <div id="card"><span id="cardk"></span><h2 id="cardt"></h2><p id="cards"></p></div>
+  <div id="float"></div>
+  <div id="radio"><b>Col. Licorice</b><span id="radiotext"></span></div>
+
+  <div id="bl">
+    <div class="hp"><b id="hpnum">100</b><div class="track"><i id="hpghost"></i><i id="hpfill"></i></div></div>
+    <div id="sugar"><span>Sugar Rush</span><div class="track"><i id="sugarfill"></i></div><kbd>F</kbd></div>
+    <div id="dash"></div>
+  </div>
+  <div id="br">
+    <div id="wname">Jellybean Blaster</div>
+    <div class="ammo"><b id="ammonum">24</b><span id="ammomax">/ 24</span></div>
+    <div id="slots"></div>
+  </div>
+</div>
+
+<div id="overlay" hidden><div id="panel"></div></div>
+
+<script>
+  // Surface load failures (for example, no internet for the three.js CDN) instead of a blank page.
+  function loadFail(msg) { var l = document.getElementById('loading'); l.hidden = false; l.textContent = 'Could not start: ' + msg; }
+  addEventListener('error', function (e) { if (!window.__gummy) loadFail(e.message || 'a script failed to load'); });
+  addEventListener('unhandledrejection', function (e) { if (!window.__gummy) loadFail(String(e.reason && e.reason.message || e.reason)); });
+</script>
+<script type="module" src="js/game.js" onerror="loadFail('a module failed to load. Check your internet connection.')"></script>
+</body>
+</html>
