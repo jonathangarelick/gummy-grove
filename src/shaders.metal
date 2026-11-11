@@ -432,7 +432,8 @@ fragment GumOut gum_fs(GumIn in [[stage_in]], constant Globals& G [[buffer(0)]],
     float3 refl = mix(sky(R, G, false), mix(G.skyBot.rgb, mix(G.skyMid.rgb, G.skyTop.rgb, saturate(R.y)), saturate(R.y * 4.0 + 0.5)), 0.75) * mix(0.4, 0.75, U.params.y);
     float fres = 0.03 + 0.6 * pow(1.0 - NoV, 5.0);
     float3 H = normalize(V + L); float NoH = saturate(dot(N, H));
-    spec += sun * (D_GGX(NoH, 0.06) * 0.02 + D_GGX(NoH, 0.28) * 0.03) * saturate(NoL);
+    spec += sun * (D_GGX(NoH, 0.1) * 0.016 + D_GGX(NoH, 0.3) * 0.03) * saturate(NoL);
+    body += base * G.sunColor.w * (0.03 + 0.1 * edge);                    // after dark they keep a faint glow of their own, so they still read
     float3 col = mix(body, refl, fres) + spec + base * U.params.z + U.color.w * float3(2.4);
     for (int i = 0; i < 3; i++) if (length((p - U.eyes[i].xyz) / U.eyes[i].w) < 1.0) col = mix(float3(0.006), refl, fres * 0.6) + spec;
     col = applyFog(col, cam, rdw, o.lin, G);

@@ -63,7 +63,7 @@ Opens the real window, plays 300 frames and prints frame timings.
 cargo run --release --locked -- --shot out.png --mission 3 --t 10 --play
 ```
 
-Renders one frame to a PNG. Other flags: `--screen map|brief|armory|settings|pause|results`, `--intro`, `--ads`, `--gun N`, `--give ak|pistol|sniper|rpg|minigun`, `--w/--h/--scale`, `--cam --x --y --z --yaw --pitch --fov`.
+Renders one frame to a PNG. Other flags: `--screen map|brief|armory|settings|pause|results`, `--intro`, `--ads`, `--gun N`, `--give ak|pistol|sniper|rpg|minigun`, `--lineup` (a row of bears in every colour), `--pal morning|sunset|overcast|night`, `--noui`, `--w/--h/--scale`, `--cam --x --y --z --yaw --pitch --fov`.
 
 ## Layout
 
