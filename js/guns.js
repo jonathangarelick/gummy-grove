@@ -105,8 +105,8 @@ function ballTex() {
 }
 export const jawMat = new THREE.MeshStandardMaterial({ map: ballTex(), roughness: 0.2, emissive: 0xffffff, emissiveIntensity: 0.35 });
 
-export function makeViewmodels() {
-  const mk = (build, hip, adsZ, extra) => {
+function vm(build, hip, adsZ, extra) {
+  {
     const k = new Kit(), meta = build(k), inner = k.build(), g = new THREE.Group();
     inner.rotation.y = Math.PI; g.add(inner);
     const flash = makeFlash(0.55); flash.position.set(0, 0, meta.mz + 0.02); flash.visible = false; inner.add(flash);
@@ -118,11 +118,13 @@ export function makeViewmodels() {
     if (extra) extra(g, inner);
     g.traverse(o => { o.castShadow = false; o.frustumCulled = false; });
     return g;
-  };
+  }
+}
+export function makeViewmodels() {
   return [
-    mk(carbine, [0.135, -0.118, -0.27], -0.17),
-    mk(shotgun, [0.14, -0.105, -0.3], -0.3, (g, inner) => { const p = new Kit(); pumpKit(p); g.pump = p.build(); inner.add(g.pump); }),
-    mk(launcher, [0.15, -0.13, -0.3], -0.2, (g, inner) => { g.ball = new THREE.Mesh(G.sphere, jawMat); g.ball.scale.setScalar(0.0255); g.ball.position.set(0, 0, 0.292); inner.add(g.ball); }),
+    vm(carbine, [0.135, -0.118, -0.27], -0.17),
+    vm(shotgun, [0.14, -0.105, -0.3], -0.3, (g, inner) => { const p = new Kit(); pumpKit(p); g.pump = p.build(); inner.add(g.pump); }),
+    vm(launcher, [0.15, -0.13, -0.3], -0.2, (g, inner) => { g.ball = new THREE.Mesh(G.sphere, jawMat); g.ball.scale.setScalar(0.0255); g.ball.position.set(0, 0, 0.292); inner.add(g.ball); }),
   ];
 }
 
@@ -205,4 +207,13 @@ let rocketParts;
 export function makeRocket() {
   if (!rocketParts) { const k = new Kit(); warhead(k); k.box(OLIVE, 0.12, 0.004, 0.06, 0, 0, 0.32).box(OLIVE, 0.004, 0.12, 0.06, 0, 0, 0.32).ball(EXHAUST, 0.03, 0, 0, 0.27, 1, 1, 2.6); rocketParts = k.parts(1.35); for (const [g] of rocketParts) g.translate(0, 0, -0.7); }
   return inst(rocketParts);
+}
+
+// first-person versions of the weapons you take off the bears
+export function makeLootViewmodel(kind) {
+  if (kind === 'pistol') return vm(k => { pistol(k); arms(k, [0, -0.075, -0.06], null); return { sightY: 0.042, mz: 0.12 }; }, [0.11, -0.085, -0.36], -0.32);
+  if (kind === 'sniper') return vm(k => { sniper(k); arms(k, [0, -0.1, -0.07], [0.004, -0.075, 0.2]); return { sightY: 0.068, mz: 0.79 }; }, [0.135, -0.12, -0.27], -0.15);
+  if (kind === 'rpg') return vm(k => { rpg(k); warhead(k); arms(k, [0, -0.08, 0.11], [0.004, -0.07, 0.02]); return { sightY: 0.06, mz: 0.78 }; }, [0.16, -0.09, -0.2], -0.2);
+  if (kind === 'minigun') return vm(k => { minigun(k); arms(k, [-0.04, -0.03, -0.3], [0.004, 0.09, -0.08]); return { sightY: 0.12, mz: 0.64 }; }, [0.14, -0.25, -0.5], -0.5, (g, inner) => { const b = new Kit(); barrels(b); g.barrels = b.build(); inner.add(g.barrels); });
+  return vm(k => { ak(k); arms(k, [0, -0.085, -0.065], [0.004, -0.065, 0.2]); return { sightY: 0.07, mz: 0.62 }; }, [0.135, -0.118, -0.27], -0.2);
 }

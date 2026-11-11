@@ -35,7 +35,7 @@ const screens = {
     const m = data;
     return `<div class="wide brief pal-${m.palette}">${head(`<small>Mission ${m.id} · ${m.palette}</small>${m.title}`, stars(profile.done[m.id] || 0))}
       <p class="story">${m.brief}</p>
-      <div class="cols"><div><h3>Objective</h3><p>${objText(m)}</p><h3>Hostiles</h3><p>${m.threats.map(t => BEAR_NAMES[t]).join(' · ')}</p></div>
+      <div class="cols"><div><h3>Objective</h3><p>${objText(m)}</p><h3>Hostiles</h3><p>${m.threats.map(t => BEAR_NAMES[t]).join(' · ')}</p><h3>Insertion</h3><p>${m.insert === 'sdv' ? 'Underwater, by diver scooter, up the boat ramp.' : 'Parachute drop over the bay.'}</p></div>
       <div><h3>Stars</h3><ul class="checks"><li>Complete the mission</li><li>Finish with 50%+ health</li><li>${m.bonus.heads} headshots</li></ul>
       <h3>Reward</h3><p><em class="cz">${m.reward.candy}</em> &nbsp;${m.reward.xp} XP${m.reward.unlock && !profile.done[m.id] ? ` &nbsp;<b class="unlock">Unlocks ${m.reward.unlock}</b>` : ''}</p></div></div>
       <footer><button data-act="go" data-arg="armory">Armory</button><button class="primary" data-act="play" data-arg="${m.id}">Deploy</button></footer></div>`;
@@ -57,7 +57,7 @@ const screens = {
       <label>Mouse sensitivity<input type="range" id="sens" min="0.3" max="2.5" step="0.05" value="${settings.sens}"></label>
       <label>Volume<input type="range" id="vol" min="0" max="1" step="0.05" value="${settings.volume}"></label>
       <div class="row"><button data-act="gfx">Graphics: ${settings.quality === 'high' ? 'High' : 'Low'} <small>reloads the page</small></button><button class="danger" data-act="reset">${resetArmed ? 'Click again to wipe everything' : 'Reset progress'}</button></div>
-      <h3>Controls</h3><div class="keys">${k('WASD', 'move')}${k('Mouse', 'aim')}${k('Click', 'fire')}${k('Right click', 'aim down sights')}${k('Space', 'jump · double jump')}${k('Shift', 'dash')}${k('1 2 3', 'weapons')}${k('Q', 'last weapon')}${k('R', 'reload')}${k('F', 'Sugar Rush')}${k('Esc', 'pause')}${k('M', 'mute')}</div></div>`;
+      <h3>Controls</h3><div class="keys">${k('WASD', 'move')}${k('Shift', 'sprint')}${k('C', 'crouch · slide while moving')}${k('Space', 'jump · climb ledges')}${k('Click', 'fire')}${k('Right click', 'aim down sights')}${k('V', 'melee')}${k('E', 'pick up gear')}${k('1 2 3 4', 'weapons')}${k('Q', 'last weapon')}${k('R', 'reload')}${k('F', 'Sugar Rush')}${k('Esc', 'pause')}${k('M', 'mute')}</div></div>`;
   },
   pause() {
     return `<div class="col"><h2 class="big">Paused</h2><p class="tag">The bears are politely waiting.</p><button class="primary" data-act="resume">Resume</button><button data-act="restart">Restart</button><button data-act="go" data-arg="settings">Settings</button><button data-act="quit">Abandon to menu</button></div>`;

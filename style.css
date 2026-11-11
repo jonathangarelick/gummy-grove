@@ -107,6 +107,13 @@ canvas { display: block; width: 100vw; height: 100vh; }
 #slots i { font-style: normal; font-size: 12px; letter-spacing: .06em; padding: 5px 10px; border-radius: 9px; background: var(--glass); border: 1px solid var(--line); opacity: .6; }
 #slots i b { margin-right: 6px; color: var(--mint); } #slots i.on { opacity: 1; background: var(--hot); border-color: #ffb0d2; } #slots i.on b { color: #fff; } #slots i.locked { opacity: .3; }
 
+#armor { height: 7px; margin-bottom: 8px; opacity: 0; transition: opacity .2s; } #armor.on { opacity: 1; } #arfill { background: linear-gradient(90deg, #5aa9ff, #bfe1ff); transition: width .12s; }
+#promptbox { position: absolute; left: 50%; top: 62%; transform: translateX(-50%); display: flex; align-items: center; gap: 10px; padding: 8px 16px; border-radius: 12px; background: var(--glass); border: 1px solid var(--line); backdrop-filter: blur(8px); font-size: 15px; letter-spacing: .04em; opacity: 0; transition: opacity .15s; white-space: nowrap; }
+#promptbox.on { opacity: 1; } #promptbox kbd { font: inherit; font-weight: 900; padding: 2px 9px; border-radius: 7px; background: var(--sun); color: var(--ink); text-shadow: none; }
+#scope { position: absolute; inset: 0; opacity: 0; background: radial-gradient(circle at center, transparent 0, transparent 33vh, #050506 33.4vh), linear-gradient(#111, #111) center/1.5px 68vh no-repeat, linear-gradient(#111, #111) center/68vh 1.5px no-repeat; }
+#scope.on { opacity: 1; }
+#hud.cine > :not(#bars):not(#card):not(#float) { opacity: 0 !important; }
+
 /* ───────── menus ───────── */
 #overlay { position: fixed; inset: 0; display: flex; padding: 5vh 5vw; overflow: auto; background: rgba(24, 5, 17, .74); backdrop-filter: blur(7px); }
 #overlay.scr-menu { background: linear-gradient(90deg, rgba(24, 5, 17, .9), rgba(24, 5, 17, .45) 46%, rgba(24, 5, 17, 0) 72%); backdrop-filter: none; }
