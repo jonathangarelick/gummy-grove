@@ -129,3 +129,7 @@ Renders one frame to a PNG. Useful flags:
 - Apple silicon Macs only. It has been run on one machine, an M1 Pro on macOS 27.
 - Interface text uses fonts that ship with macOS (Arial Rounded, Impact, Marker Felt).
 - Dependencies are locked to versions at least seven days old at the time of locking; build with `--locked`.
+
+## License
+
+[MIT](LICENSE).

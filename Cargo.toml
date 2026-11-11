@@ -3,6 +3,8 @@ name = "gummy-grove"
 version = "0.1.0"
 edition = "2021"
 description = "Gummy Grove: a first-person shooter on a native Metal renderer"
+license = "MIT"
+repository = "https://github.com/jonathangarelick/gummy-grove"
 
 [dependencies]
 metal = { version = "0.33", features = ["mps"] }
