@@ -333,6 +333,7 @@ fn headless(args: &[String]) {
         if !has("--intro") { c.game.skip_intro(); }
     }
     let (t, frames) = (num("--t", 0.0), num("--frames", 40.0) as u32);
+    if has("--lineup") { c.game.debug_lineup(Vec3::new(num("--lx", 0.0), num("--ly", 0.0), num("--lz", 72.0))); }
     if let Some(which) = arg("--inspect") { // weapon models on a table, for looking at from outside
         let at = glam::Mat4::from_translation(Vec3::new(num("--ix", 0.0), num("--iy", 1.5), num("--iz", 70.0))) * glam::Mat4::from_rotation_y(num("--iyaw", 1.5708));
         let loot = match which.as_str() { "ak" => Some(guns::Wpn::Rifle), "pistol" => Some(guns::Wpn::Pistol), "sniper" => Some(guns::Wpn::Sniper), "rpg" => Some(guns::Wpn::Rpg), "minigun" => Some(guns::Wpn::Minigun), _ => None };

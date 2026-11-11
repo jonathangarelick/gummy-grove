@@ -270,7 +270,8 @@ fragment LOut light_fs(FsIn in [[stage_in]], constant Globals& G [[buffer(0)]], 
     for (int i = 0; i < ns; i++) {     // gummies cast soft, tinted shadows: light passes through them
         float4 s = G.spheres[2 * i];
         float sh = sphShadow(wp + N * 0.03, Ls, s, 9.0);
-        tint *= mix(G.spheres[2 * i + 1].rgb, float3(1.0), sh);
+        float core = 1.0 - sh; core *= core * core;
+        tint *= mix(G.spheres[2 * i + 1].rgb * (0.42 + 1.0 * core), float3(1.0), sh);   // dim at the rim, bright in the middle, like light focused through candy
         ao *= sphOcc(wp, N, s);
     }
     float3 f0 = mix(float3(0.04), albedo, metal), diff = albedo * (1.0 - metal);
@@ -375,32 +376,63 @@ fragment GumOut gum_fs(GumIn in [[stage_in]], constant Globals& G [[buffer(0)]],
 
     float scale = U.params.w;
     float3 V = -rdw, L = G.sunDir.xyz, base = U.color.rgb;
-    // how much jelly the view ray passes through
-    float3 rin = refract(rd, nl, 1.0 / 1.36); if (dot(rin, rin) < 0.5) rin = rd;
+    float NoV = saturate(dot(N, V)), NoL = dot(N, L);
+    // Jelly is mostly clear and only faintly cloudy: light goes in and through far more than it bounces back.
+    // So the look comes from depth: thin parts stay pale and let the world show, thick parts go deep and dark.
+    float3 ext = -log(clamp(base, 0.04, 0.96)) + 0.8;                     // what a unit of jelly soaks up per channel, plus the cloudiness
+    float dens = scale;
+    // the view ray bends on the way in; follow it to see how much jelly it has to cross
+    float3 rin = refract(rd, nl, 1.0 / 1.38); if (dot(rin, rin) < 0.5) rin = rd;
     float ti = 0.03; for (int i = 0; i < 16; i++) { float d = gmap(p + rin * ti, U); if (d > 0.0) break; ti += max(-d, 0.02); }
-    // and how much the sunlight had to cross to get here
+    // sunlight scattered toward the eye from three depths along that ray, each dimmed by the jelly it crossed going in and coming out
     float3 ll = normalize((U.invModel * float4(L, 0.0)).xyz);
-    float tl = 0.03; for (int i = 0; i < 9; i++) { float d = gmap(p - nl * 0.02 + ll * tl, U); if (d > 0.0) break; tl += max(-d, 0.03); }
-    float3 sig = -log(clamp(base, 0.03, 0.97));
-    float3 T = exp(-sig * ti * scale * 1.15);
-    // what is behind, bent through the body
+    float3 lit = float3(0.0), qm = p;
+    const float fr[3] = { 0.15, 0.5, 0.9 };
+    for (int s = 0; s < 3; s++) {
+        float ts = ti * fr[s]; float3 q = p + rin * ts; if (s == 1) qm = q;
+        float tl = 0.02; for (int i = 0; i < 6; i++) { float d = gmap(q + ll * tl, U); if (d > 0.0) break; tl += max(-d, 0.05); }
+        lit += exp(-ext * (ts + tl) * dens);
+    }
+    lit /= 3.0;
+    float3 sun = G.sunColor.rgb * G.sunDir.w * U.params.y;
+    float fwd = pow(saturate(dot(rdw, L) * 0.5 + 0.5), 5.0);             // looking toward the sun through the body: it glows
+    float wrap = saturate((NoL + 0.7) / 1.7);
+    float strength = 1.0 - exp(-0.9 * dens * ti);                         // more jelly along the ray, more of it to light up
+    float3 scat = mix(float3(1.0), base, 0.55) * sun * lit * (0.15 + 0.12 * wrap + 0.9 * fwd) * strength;
+    float3 amb = mix(float3(luma(G.ambient.rgb)), G.ambient.rgb, 0.72);
+    float3 irr = mix(G.skyBot.rgb * 0.35 + sun * 0.05, amb, N.y * 0.5 + 0.5);
+    float3 deep = mix(base, base * base, saturate(ti * dens * 0.45));     // thick jelly runs deeper in colour
+    float occ = saturate(0.4 + 0.6 * gmap(p + nl * 0.1, U) / 0.1);        // creases: neck, armpits, between the feet
+    float cloud = 0.88 + 0.24 * vnoise(qm.xy * 4.3 + qm.z * 2.9);         // it is never perfectly even inside
+    // point lights: muzzle flashes, blasts, street lamps
+    float3 spec = float3(0.0), local = float3(0.0);
+    int nlights = int(G.counts.x);
+    for (int i = 0; i < nlights; i++) {
+        float3 lv = G.lights[i].pos.xyz - wp; float l2 = dot(lv, lv), r = G.lights[i].pos.w;
+        if (l2 > r * r) continue;
+        float l = sqrt(l2), fall = saturate(1.0 - l2 / (r * r)); fall = fall * fall / (1.0 + l2 * 0.03);
+        float3 Lp = lv / l, lc = G.lights[i].color.rgb * fall;
+        local += lc * (0.07 + 0.2 * saturate((dot(N, Lp) + 0.7) / 1.7) + 0.2 * pow(saturate(-dot(N, Lp)), 2.0));
+        spec += lc * D_GGX(saturate(dot(N, normalize(V + Lp))), 0.09) * 0.02 * saturate(dot(N, Lp));
+    }
+    // what is behind, bent through the body and smeared by it: sharper at the thin edges
     float3 we = (U.model * float4(p + rin * ti, 1.0)).xyz + normalize((U.model * float4(rin, 0.0)).xyz) * 0.5 * scale;
     float4 ce = G.viewProj * float4(we, 1.0);
     float2 suv = clamp(uvOf(ce.xy / ce.w), float2(0.002), float2(0.998));
-    float3 behind = scene.sample(sLin, suv).rgb;
-    float3 sun = G.sunColor.rgb * G.sunDir.w * U.params.y;
-    float fres = 0.04 + 0.96 * pow(1.0 - saturate(dot(N, V)), 5.0);
-    float3 irr = mix(G.skyBot.rgb * 0.4, G.ambient.rgb, N.y * 0.5 + 0.5);
-    float wrap = saturate((dot(N, L) + 0.55) / 1.55);
-    float phase = 0.22 + 0.95 * pow(saturate(dot(rdw, L)), 3.0) + 0.5 * wrap;
-    float3 sss = base * sun * exp(-sig * tl * scale * 2.3) * phase * 0.5;       // light scattered inside
-    float3 inner = mix(base, base * base, saturate(ti * scale * 0.75));            // thick jelly runs deeper in colour
-    float3 body = inner * irr * 0.62 * (1.0 - T) + behind * T * mix(float3(1.0), base, 0.3) + sss;
+    float br = clamp(ti * dens, 0.0, 1.6) * 0.017 * scale / max(o.lin * 0.14, 1.0);
+    float ang = hash21(in.pos.xy + G.misc.x * 7.3) * 6.2831853;
+    float2 asp = float2(G.res.y / G.res.x, 1.0);
+    float3 behind = scene.sample(sLin, suv).rgb * 0.25;
+    for (int i = 0; i < 6; i++) { float a = ang + float(i) * 1.0472; behind += scene.sample(sLin, clamp(suv + float2(cos(a), sin(a)) * asp * br * ((i & 1) == 0 ? 1.0 : 0.55), float2(0.002), float2(0.998))).rgb * 0.125; }
+    float3 Tv = exp(-ext * ti * dens);
+    float edge = pow(1.0 - NoV, 2.5);
+    float3 body = (scat + (deep * irr * 0.65 + base * local) * strength * occ + base * irr * 0.12) * cloud + behind * Tv + base * (irr * 0.35 + sun * 0.05) * edge;
+    // the skin: a soft waxy sheen with a small wet glint on top, not a mirror
     float3 R = reflect(rdw, N);
-    float3 refl = mix(sky(R, G, false), mix(G.skyBot.rgb, mix(G.skyMid.rgb, G.skyTop.rgb, saturate(R.y)), saturate(R.y * 4.0 + 0.5)), 0.55) * mix(0.4, 0.8, U.params.y);
-    fres = 0.03 + 0.72 * pow(1.0 - saturate(dot(N, V)), 5.0);
+    float3 refl = mix(sky(R, G, false), mix(G.skyBot.rgb, mix(G.skyMid.rgb, G.skyTop.rgb, saturate(R.y)), saturate(R.y * 4.0 + 0.5)), 0.75) * mix(0.4, 0.75, U.params.y);
+    float fres = 0.03 + 0.6 * pow(1.0 - NoV, 5.0);
     float3 H = normalize(V + L); float NoH = saturate(dot(N, H));
-    float3 spec = sun * (D_GGX(NoH, 0.045) * 0.03 + D_GGX(NoH, 0.3) * 0.02) * saturate(dot(N, L));
+    spec += sun * (D_GGX(NoH, 0.06) * 0.02 + D_GGX(NoH, 0.28) * 0.03) * saturate(NoL);
     float3 col = mix(body, refl, fres) + spec + base * U.params.z + U.color.w * float3(2.4);
     for (int i = 0; i < 3; i++) if (length((p - U.eyes[i].xyz) / U.eyes[i].w) < 1.0) col = mix(float3(0.006), refl, fres * 0.6) + spec;
     col = applyFog(col, cam, rdw, o.lin, G);

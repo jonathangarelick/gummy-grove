@@ -1173,9 +1173,9 @@ impl Game {
         let pose = b.pose();
         self.gummies.push(bear::gummy(&pose, lin(b.color), b.flash / 0.12 * 0.6, b.sun, glow));
         let s = b.scale_now();
-        self.spheres.push([v3(b.pos.x, b.pos.y + (b.gy + 0.85) * s, b.pos.z).extend(0.62 * s), (lin(b.color) * 0.6 + 0.12).extend(0.0)]);
+        self.spheres.push([v3(b.pos.x, b.pos.y + (b.gy + 0.85) * s, b.pos.z).extend(0.62 * s), (lin(b.color) * 0.85 + 0.05).extend(0.0)]);
         if b.head {
-            self.spheres.push([v3(b.pos.x, b.pos.y + (b.gy + 1.6) * s, b.pos.z).extend(0.4 * s), (lin(b.color) * 0.6 + 0.12).extend(0.0)]);
+            self.spheres.push([v3(b.pos.x, b.pos.y + (b.gy + 1.6) * s, b.pos.z).extend(0.4 * s), (lin(b.color) * 0.85 + 0.05).extend(0.0)]);
             let hx = pose.head_xf();
             for g in b.t.gear { self.draws.push(Draw { mesh: self.ids.gear[g], inst: Inst::new(hx) }); }
         }
@@ -1201,7 +1201,7 @@ impl Game {
             if st.pose == 1 { p.arm_r = Some((0.0, -1.45)); p.arm_l = Some((0.0, 1.45)); }
             if st.pose == 2 { p.tilt_x = -PI / 2.0; p.pos.y += (self.clock * 0.9 + i as f32).sin() * 0.08; }
             self.gummies.push(bear::gummy(&p, lin(st.color), 0.0, 1.0, self.pal.night * 0.08));
-            if st.pose == 0 { self.spheres.push([(st.pos + Vec3::Y * 0.9 * st.scale).extend(0.62 * st.scale), (lin(st.color) * 0.6 + 0.12).extend(0.0)]); if st.crown { self.draws.push(Draw { mesh: self.ids.gear[&Gear::Crown], inst: Inst::new(p.head_xf()) }); } }
+            if st.pose == 0 { self.spheres.push([(st.pos + Vec3::Y * 0.9 * st.scale).extend(0.62 * st.scale), (lin(st.color) * 0.85 + 0.05).extend(0.0)]); if st.crown { self.draws.push(Draw { mesh: self.ids.gear[&Gear::Crown], inst: Inst::new(p.head_xf()) }); } }
         }
         let list: Vec<Bear> = self.bears.iter().chain(self.dying.iter()).chain(self.props.iter()).copied().collect();
         for b in &list { self.draw_bear(b, 0.0); }
@@ -1300,6 +1300,16 @@ impl Game {
             if let Some(bl) = ball { if self.guns[gi].ammo > 0 && self.reload_t <= 0.0 { self.vm_draws.push(Draw { mesh: bl, inst: Inst::new(base) }); } }
             if let Some(br) = barrels { self.vm_draws.push(Draw { mesh: br, inst: Inst::new(base * Mat4::from_rotation_z(self.barrel_spin)) }); }
             if let Some(dz) = dot_z { self.vm_draws.push(Draw { mesh: self.ids.reticle, inst: Inst::new(base * Mat4::from_translation(v3(self.dot_off.x, sight_y + self.dot_off.y, dz))) }); }
+        }
+    }
+    /// Debug: a row of bears in every colour, for judging the jelly shading up close.
+    pub fn debug_lineup(&mut self, at: Vec3) {
+        self.props.clear();
+        let kinds = [Kind::Grunt, Kind::Rifle, Kind::Shield, Kind::Rpg, Kind::Sniper, Kind::Knife, Kind::Grunt];
+        for (i, k) in kinds.iter().enumerate() {
+            let mut b = Bear::new(*k, self.next_id); self.next_id += 1;
+            b.color = CANDY[i]; b.pos = at + v3((i as f32 - 3.0) * 1.9, 0.0, 0.0); b.yaw = 0.0;
+            self.props.push(b);
         }
     }
     /// Debug: stand a first-person weapon model up in the world so it can be looked at from outside.
