@@ -1198,7 +1198,7 @@ impl Game {
         let statues = self.world.statues.clone();
         for (i, st) in statues.iter().enumerate() {
             let mut p = BearPose::idle(st.pos, st.yaw, st.scale);
-            if st.pose == 1 { p.arm_r = Some((0.0, -1.45)); p.arm_l = Some((0.0, 1.45)); }
+            if st.pose == 1 { p.arm_r = Some((-0.93, -1.5708)); p.arm_l = Some((-0.93, 1.5708)); } // both arms thrown up in a cheer
             if st.pose == 2 { p.tilt_x = -PI / 2.0; p.pos.y += (self.clock * 0.9 + i as f32).sin() * 0.08; }
             self.gummies.push(bear::gummy(&p, lin(st.color), 0.0, 1.0, self.pal.night * 0.08));
             if st.pose == 0 { self.spheres.push([(st.pos + Vec3::Y * 0.9 * st.scale).extend(0.62 * st.scale), (lin(st.color) * 0.85 + 0.05).extend(0.0)]); if st.crown { self.draws.push(Draw { mesh: self.ids.gear[&Gear::Crown], inst: Inst::new(p.head_xf()) }); } }

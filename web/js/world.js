@@ -141,7 +141,7 @@ function sign(x, sx, y, text) {
 const PL = [0x2f9c95, 0xd9a441, 0xd4705f, 0x4f8fca, 0x86c5a4, 0xc45f42, 0xe6dfd0, 0x9a82bd, 0xdf82a6, 0x7aa957, 0xf0c24a, 0x5bb0c0];
 const SPRAY = [0xff3b6b, 0x35d6c8, 0xffd23f, 0x9b4dff, 0xffffff, 0x3fd45c, 0xff8a1f];
 const SIGNS = ['BAR DO GUMMY', 'MERCADINHO JUJUBA', 'DOCERIA DO REI', 'AÇAÍ & BALAS', 'BARBEARIA DO URSO', 'LAN HOUSE GELATINA', 'PADARIA DOCE VIDA', 'BORRACHARIA URSÃO'];
-const TAGS = ['VIVA O REI GUMMY', 'GUMMY LIVRE', 'DOCE OU MORTE', 'S.W.E.E.T. FORA!', 'URSO NÃO DORME', 'JUJUBA 4EVER', 'AQUI MANDA O URSO', 'CUIDADO: URSO BRAVO', 'O AÇÚCAR É NOSSO'];
+const TAGS = ['VIVA O REI GUMMY', 'GUMMY LIVRE', 'DOCE OU MORTE', 'PAZ, AMOR E JUJUBA', 'URSO NÃO DORME', 'JUJUBA 4EVER', 'DOCE DEMAIS!', 'CUIDADO: URSO BRAVO', 'O AÇÚCAR É NOSSO'];
 const litMat = (m, k) => { m.userData.glowK = k; glowMats.push(m); return m; };
 
 // one storey of a house front: plaster or bare block, barred windows, maybe a door, a shop sign or a tag
@@ -408,9 +408,9 @@ const bobbers = [], kites = [];
     hm.setMatrixAt(i, m4); hm.setColorAt(i, col.setHex(Math.random() < 0.3 ? 0xb5603a : pick(PL)));
   }
   scene.add(hm);
-  const top = hills.reduce((b, h) => (h.z < b.z ? h : b)), redeemer = makeBear(C.red);
-  redeemer.armR.rotation.y = -1.45; redeemer.armL.rotation.y = 1.45; redeemer.root.scale.setScalar(13); redeemer.root.position.set(top.x, top.H + 3, top.z); redeemer.root.rotation.y = Math.atan2(-top.x, -top.z);
-  const plinth = new THREE.Mesh(G.box, CONC); plinth.scale.set(12, 8, 12); plinth.position.set(top.x, top.H - 1, top.z); scene.add(redeemer.root, plinth);
+  const top = hills.reduce((b, h) => (h.z < b.z ? h : b)), landmark = makeBear(C.red);
+  landmark.armR.rotation.set(-Math.PI / 2, -0.6435, 0); landmark.armL.rotation.set(-Math.PI / 2, 0.6435, 0); landmark.root.scale.setScalar(13); landmark.root.position.set(top.x, top.H + 3, top.z); landmark.root.rotation.y = Math.atan2(-top.x, -top.z);
+  const plinth = new THREE.Mesh(G.box, CONC); plinth.scale.set(12, 8, 12); plinth.position.set(top.x, top.H - 1, top.z); scene.add(landmark.root, plinth);
 
   // on the water: fishing boats and one very large inflatable
   for (const [bx, bz, c] of [[-26, R + 14, 0x2f6fb0], [22, R + 26, 0xc8553a], [-9, R + 34, 0xe6dfd0]]) {

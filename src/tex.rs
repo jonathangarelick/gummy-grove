@@ -254,7 +254,7 @@ pub struct Atlas {
     pub tags: Vec<Rect>, pub signs: Vec<Rect>,
     pub bear: Rect, pub king: Rect, pub mural: Rect, pub crate_label: Rect, pub shield: Rect, pub splat: Rect, pub white: Rect,
 }
-pub const TAGS: [&str; 9] = ["VIVA O REI GUMMY", "GUMMY LIVRE", "DOCE OU MORTE", "S.W.E.E.T. FORA!", "URSO NÃO DORME", "JUJUBA 4EVER", "AQUI MANDA O URSO", "CUIDADO: URSO BRAVO", "O AÇÚCAR É NOSSO"];
+pub const TAGS: [&str; 9] = ["VIVA O REI GUMMY", "GUMMY LIVRE", "DOCE OU MORTE", "PAZ, AMOR E JUJUBA", "URSO NÃO DORME", "JUJUBA 4EVER", "DOCE DEMAIS!", "CUIDADO: URSO BRAVO", "O AÇÚCAR É NOSSO"];
 pub const SIGNS: [&str; 8] = ["BAR DO GUMMY", "MERCADINHO JUJUBA", "DOCERIA DO REI", "AÇAÍ & BALAS", "BARBEARIA DO URSO", "LAN HOUSE GELATINA", "PADARIA DOCE VIDA", "BORRACHARIA URSÃO"];
 pub const SPRAY: [u32; 7] = [0xff3b6b, 0x35d6c8, 0xffd23f, 0x9b4dff, 0xffffff, 0x3fd45c, 0xff8a1f];
 fn rgba(hex: u32) -> [u8; 4] { [(hex >> 16) as u8, (hex >> 8) as u8, hex as u8, 255] }
